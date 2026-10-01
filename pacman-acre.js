@@ -1,22 +1,24 @@
 const c=document.querySelector('#game'),g=c.getContext('2d');g.imageSmoothingEnabled=false;
 const W=960,H=540,T=30,COLS=30,ROWS=16,OX=30,OY=30,STARTING_LIVES=3,POWER_DURATION=7,PLAYER_SPEED=6.3,GHOST_SPEED=3.15;
-const TEMPLATE=[
-'############## ###############',
-'#P...........# #............P#',
-'#.####.#####.#  ######.####..#',
-'#.#..........#  #.........#..#',
-'#.#.####.###......###.####.#.#',
-'#......#....## ##....#.......#',
-'######.#.##        ##.#.######',
-'       #....#    #....#       ',
-'######.#.##.#    #.##.#.######',
-'#......#....######....#......#',
-'#.####.####        ####.####.#',
-'#.#........##....##........#.#',
-'#.#.######.#......#.######.#.#',
-'#P...........# #............P#',
-'##############S###############',
-'############## ###############'];
+// O lado esquerdo e a referência; cada linha e espelhada automaticamente para o lado direito.
+const LEFT=[
+'############## ',
+'#P...........# ',
+'#.####.#####.# ',
+'#.#..........# ',
+'#.#.####.###...',
+'#......#....## ',
+'######.#.##    ',
+'       #....#  ',
+'######.#.##.#  ',
+'#......#....###',
+'#.####.####    ',
+'#.#........##..',
+'#.#.######.#...',
+'#P...........# ',
+'##############S',
+'############## '];
+const TEMPLATE=LEFT.map((l,y)=>{let a=[...l];if(a.length<15)a.push(...Array(15-a.length).fill(' '));if(a.length>15)a=a.slice(0,15);let r=a.slice().reverse();if(y===14){a[14]='S';r[0]='#'}return a.join('')+r.join('')});
 let grid,dots,powers,score=0,high=+(localStorage.getItem('retroPacHigh')||0),lives=STARTING_LIVES,level=1,power=0,state='ready',pause=1,last=performance.now(),anim=0,soundOn=true,audio=null;
 const pac={x:14,y:14,px:14,py:14,t:0,dir:{x:0,y:-1},next:{x:0,y:-1}};
 const HOME=[[13,7],[14,7],[15,7],[16,7]],COL=['#f4e8b5','#f1a0cf','#83dce5','#efa86d'];
