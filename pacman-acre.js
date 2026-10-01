@@ -1,12 +1,12 @@
 const c=document.querySelector('#game'),g=c.getContext('2d');g.imageSmoothingEnabled=false;
 const W=960,H=540,T=30,COLS=30,ROWS=16,OX=30,OY=30,STARTING_LIVES=3,POWER_DURATION=7,PLAYER_SPEED=6.3,GHOST_SPEED=3.15;
 const TEMPLATE=[
-'##############  ##############',
-'#P...........#  #...........P#',
-'#.####.#####.#  #.#####.####.#',
-'#.#..........#  #..........#.#',
+'############## ###############',
+'#P...........# #............P#',
+'#.####.#####.# #.#####.####..#',
+'#.#..........# #..........#..#',
 '#.#.####.###......###.####.#.#',
-'#......#....##  ##....#......#',
+'#......#....## ##....#.......#',
 '######.#.##        ##.#.######',
 '       #....#    #....#       ',
 '######.#.##.#    #.##.#.######',
@@ -14,16 +14,16 @@ const TEMPLATE=[
 '#.####.####        ####.####..#',
 '#.#........##....##........#..#',
 '#.#.######.#......#.######.#..#',
-'#P...........#  #...........P#',
-'##############S.##############',
-'##############  ##############'];
+'#P...........# #............P#',
+'##############S###############',
+'############## ###############'];
 let grid,dots,powers,score=0,high=+(localStorage.getItem('retroPacHigh')||0),lives=STARTING_LIVES,level=1,power=0,state='ready',pause=1,last=performance.now(),anim=0,soundOn=true,audio=null;
-const pac={x:14,y:14,px:14,py:14,t:0,dir:{x:1,y:0},next:{x:1,y:0}};
+const pac={x:14,y:14,px:14,py:14,t:0,dir:{x:0,y:-1},next:{x:0,y:-1}};
 const HOME=[[13,7],[14,7],[15,7],[16,7]],COL=['#f4e8b5','#f1a0cf','#83dce5','#efa86d'];
 const ghosts=HOME.map((p,i)=>({x:p[0],y:p[1],px:p[0],py:p[1],t:0,dir:{x:i%2?1:-1,y:0},home:{x:p[0],y:p[1]},dead:0,release:2.2+i*1.15,col:COL[i]}));
 function loadLevel(){grid=TEMPLATE.map(r=>[...r].map(ch=>ch==='#'?1:0));dots=new Set();powers=new Set();for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){let ch=TEMPLATE[y][x];if(ch==='.'||ch==='P'){dots.add(`${x},${y}`);if(ch==='P')powers.add(`${x},${y}`)}}resetActors();state='ready';pause=1;beep(180,.08,'square')}
-function resetActors(){Object.assign(pac,{x:14,y:14,px:14,py:14,t:0,dir:{x:1,y:0},next:{x:1,y:0}});ghosts.forEach((q,i)=>Object.assign(q,{x:q.home.x,y:q.home.y,px:q.home.x,py:q.home.y,t:0,dir:{x:i%2?1:-1,y:0},dead:0,release:2.2+i*1.15}));power=0}
-function open(x,y){if((x===14||x===15)&&(y===-1||y===ROWS))return true;if(y===7&&(x===-1||x===COLS))return true;return x>=0&&x<COLS&&y>=0&&y<ROWS&&grid[y][x]===0}
+function resetActors(){Object.assign(pac,{x:14,y:14,px:14,py:14,t:0,dir:{x:0,y:-1},next:{x:0,y:-1}});ghosts.forEach((q,i)=>Object.assign(q,{x:q.home.x,y:q.home.y,px:q.home.x,py:q.home.y,t:0,dir:{x:i%2?1:-1,y:0},dead:0,release:2.2+i*1.15}));power=0}
+function open(x,y){if(x===14&&(y===-1||y===ROWS))return true;if(y===7&&(x===-1||x===COLS))return true;return x>=0&&x<COLS&&y>=0&&y<ROWS&&grid[y][x]===0}
 function portal(o){if(o.y<0){o.y=ROWS-1;o.py=o.y}if(o.y>=ROWS){o.y=0;o.py=o.y}if(o.x<0){o.x=COLS-1;o.px=o.x}if(o.x>=COLS){o.x=0;o.px=o.x}}
 function beep(f=220,d=.04,type='square',vol=.025){if(!soundOn)return;try{audio=audio||new (AudioContext||webkitAudioContext)();let o=audio.createOscillator(),a=audio.createGain();o.type=type;o.frequency.value=f;a.gain.value=vol;o.connect(a);a.connect(audio.destination);o.start();a.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+d);o.stop(audio.currentTime+d)}catch(e){}}
 function key(x,y){return `${x},${y}`}function setHigh(){if(score>high){high=score;localStorage.setItem('retroPacHigh',high)}}function input(d){pac.next=d;if(audio&&audio.state==='suspended')audio.resume()}
