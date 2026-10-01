@@ -1,5 +1,5 @@
 const c=document.querySelector('#game'),g=c.getContext('2d');g.imageSmoothingEnabled=false;
-const W=800,H=600,TOP=160,rows=[445,365,285,205],keys={};let score=0,lives=3,temp=100,bricks=0,level=1,state='play',last=performance.now(),animals=[],spawn=1.2,returnTimer=0,jumpTimer=null,walkTime=0,phaseMsg=0;
+const W=800,H=600,TOP=160,rows=[445,365,285,205],keys={};let score=0,lives=3,temp=100,bricks=0,level=1,state='play',last=performance.now(),animals=[],spawn=1.2,returnTimer=0,jumpTimer=null,walkTime=0,phaseMsg=0,buildDir='down',expectedRow=3;
 const blocks=[];for(let r=0;r<4;r++)for(let i=0;i<4;i++)blocks.push({r,i,x:30+i*205,y:rows[r],w:150,h:35,on:false,dir:r%2?1:-1,speed:45+r*8});
 const p={x:110,y:TOP-20,w:30,h:44,row:3,top:true,jumping:false,t:0,sx:0,sy:0,tx:0,ty:0,last:null,face:1};
 const wolf={x:650,y:TOP-22,w:48,h:28,dir:-1,speed:92,step:0};
@@ -8,10 +8,10 @@ addEventListener('keydown',e=>{if([...DIRS,'Space'].includes(e.code))e.preventDe
 function resolveJump(){if(p.jumping||state!=='play')return;const dx=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0),dy=(keys.ArrowDown?1:0)-(keys.ArrowUp?1:0);if(dx||dy)jumpFromInput(dx,dy)}
 function rect(x,y,w,h,col){g.fillStyle=col;g.fillRect(Math.round(x),Math.round(y),w,h)}
 function platformUnder(row,x){return blocks.find(b=>b.r===row&&x>b.x-14&&x<b.x+b.w+14)}
-function landOnRow(row){const line=blocks.filter(b=>b.r===row),next=!line[0].on;line.forEach(b=>b.on=next);if(bricks<16)bricks++;score+=10}
-function jumpFromInput(dx,dy){if(p.jumping)return;if(dx)p.face=dx;if(p.top){if(dy>0){p.top=false;p.row=3;startJump(p.x+dx*90,rows[3]-25,3)}return}let nr=p.row;if(dy<0)nr=p.row+1;if(dy>0)nr=p.row-1;if(dy<0&&p.row===3){p.top=true;startJump(Math.max(30,Math.min(770,p.x+dx*90)),TOP-20);return}if(nr<0||nr>3)return;let nx=p.x+dx*105;if(!dx){const b=platformUnder(nr,p.x);if(b)nx=Math.max(b.x+18,Math.min(b.x+b.w-18,p.x))}startJump(nx,rows[nr]-25,nr)}
+function landOnRow(row){const line=blocks.filter(b=>b.r===row);if(row!==expectedRow)return;const next=!line[0].on;line.forEach(b=>b.on=next);if(bricks<16)bricks++;score+=10;if(buildDir==='down'){if(row===0){buildDir='up';expectedRow=1}else expectedRow=row-1}else{if(row===3){buildDir='top';expectedRow=-1}else expectedRow=row+1}}
+function jumpFromInput(dx,dy){if(p.jumping)return;if(dx)p.face=dx;if(p.top){if(dy>0){p.top=false;p.row=3;startJump(p.x+dx*90,rows[3]-25,3)}return}let nr=p.row;if(dy<0)nr=p.row+1;if(dy>0)nr=p.row-1;if(dy<0&&p.row===3){p.top=true;startJump(Math.max(30,Math.min(770,p.x+dx*90)),TOP-20);if(buildDir==='top'){buildDir='down';expectedRow=3}return}if(nr<0||nr>3)return;let nx=p.x+dx*105;if(!dx){const b=platformUnder(nr,p.x);if(b)nx=Math.max(b.x+18,Math.min(b.x+b.w-18,p.x))}startJump(nx,rows[nr]-25,nr)}
 function startJump(tx,ty,nr=null){p.jumping=true;p.t=0;p.sx=p.x;p.sy=p.y;p.tx=tx;p.ty=ty;if(nr!==null)p.row=nr}
-function respawn(){temp=100;p.row=3;p.top=true;p.jumping=false;p.last=null;p.x=110;p.y=TOP-20}
+function respawn(){temp=100;p.row=3;p.top=true;p.jumping=false;p.last=null;p.x=110;p.y=TOP-20;buildDir='down';expectedRow=3}
 function lose(){lives--;if(lives<=0){state='over';return}respawn();if(level===2){wolf.x=650;wolf.dir=-1}}
 function startLevel2(){level=2;bricks=0;temp=100;animals=[];blocks.forEach(b=>b.on=false);blocks.forEach(b=>b.speed+=12);wolf.x=650;wolf.dir=-1;phaseMsg=1.8;respawn()}
 function reset(){score=0;lives=3,temp=100;bricks=0;level=1;state='play';animals=[];phaseMsg=0;blocks.forEach(b=>{b.on=false;b.speed=45+b.r*8});respawn()}
