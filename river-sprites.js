@@ -1,21 +1,31 @@
 // Sprites baseados nos desenhos fornecidos pelo usuário.
 // Mantém o visual geométrico/pixelado mesmo em 800x600.
 function ship(o){
-  const alt=(Math.floor(distance/180)+Math.floor(o.y/70))%2===0;
-  // Barco: casco azul/cinza, faixa vermelha/laranja, cabine preta e mastro.
-  rect(o.x-42,o.y+5,84,11,alt?'#72a7c7':'#93c5de');
-  rect(o.x-52,o.y-3,104,7,alt?'#a63d20':'#f13a36');
-  rect(o.x-18,o.y-12,36,9,'#202020');
-  rect(o.x-4,o.y-25,8,13,'#202020');
-  rect(o.x-12,o.y-4,24,3,'#202020');
-  rect(o.x+42,o.y+4,12,4,alt?'#72a7c7':'#8ed143');
+  // Barco assimétrico como a referência: a cabine fica deslocada para a esquerda,
+  // e a proa se estende mais para a direita.
+  const x=Math.round(o.x),y=Math.round(o.y),s=.72;
+  g.save();g.translate(x,y);g.scale(s,s);
+  const hull='#75a9ca',stripe='#a33b1e',dark='#171717';
+  // faixa comprida, com proa maior do lado direito
+  rect(-67,-5,136,7,stripe);
+  rect(69,-5,16,5,stripe);
+  // casco azul: começa um pouco à esquerda e termina antes da ponta da faixa
+  rect(-47,2,106,18,hull);
+  rect(-67,2,20,8,hull);
+  // cabine propositalmente fora do centro, deslocada para a esquerda
+  rect(-48,-12,70,7,dark);
+  rect(-28,-19,45,7,dark);
+  rect(-7,-31,22,12,dark);
+  g.restore();
 }
 function heli(o){
   const x=Math.round(o.x),y=Math.round(o.y),s=o.scale||.72;
-  // Corpo fixo: desenho eli01 aprovado pelo usuário.
+  // Ao inverter dx, o sprite inteiro vira horizontalmente e passa a olhar
+  // para a direção em que está voando.
+  const dir=o.dx<0?-1:1;
   g.save();
   g.translate(x,y);
-  g.scale(s,s);
+  g.scale(dir*s,s);
   const green='#064414',blue='#14289d',gold='#d5a24e';
   // fuselagem azul longa
   rect(-42,-3,84,9,blue);
@@ -28,20 +38,13 @@ function heli(o){
   rect(-9,6,28,9,green);
   rect(-2,14,15,8,green);
   rect(-2,22,15,5,green);
-  // rotor: 4 quadros alternados dão sensação de giro sem deformar o corpo
+  // hélice animada; somente o rotor muda de quadro
   const frame=Math.floor((animTime*18+(o.phase||0))%4);
   rect(-2,-31,4,12,gold);
-  if(frame===0){
-    rect(-24,-34,48,4,gold);
-  }else if(frame===1){
-    rect(-16,-35,32,4,gold);
-    rect(-3,-38,6,10,gold);
-  }else if(frame===2){
-    rect(-8,-34,16,4,gold);
-  }else{
-    rect(-16,-35,32,4,gold);
-    rect(-3,-38,6,10,gold);
-  }
+  if(frame===0){rect(-24,-34,48,4,gold)}
+  else if(frame===1){rect(-16,-35,32,4,gold);rect(-3,-38,6,10,gold)}
+  else if(frame===2){rect(-8,-34,16,4,gold)}
+  else{rect(-16,-35,32,4,gold);rect(-3,-38,6,10,gold)}
   g.restore();
 }
 function drawHouse(x,y,variant=0){
