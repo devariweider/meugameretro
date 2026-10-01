@@ -2,7 +2,7 @@ const canvas=document.querySelector('#scene'),ctx=canvas.getContext('2d');
 const start=document.querySelector('#start'),hud=document.querySelector('#hud'),coming=document.querySelector('#coming'),title=document.querySelector('#game-title'),back=document.querySelector('#back');
 const buttons=[...document.querySelectorAll('.games button')];
 const names={river:'RIVER RAID',frost:'FROSTBITE',frog:'FROGGER',acre:'PAC-MAN ACRE'};
-const routes={river:'river-raid.html',frost:'frostbite.html',frog:'frogger.html'};
+const routes={river:'river-raid.html',frost:'frostbite.html',frog:'frogger.html',acre:'pacman-acre.html'};
 let powered=false,menu=false,selected=0,t=0;
 function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=innerWidth*d;canvas.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0)}addEventListener('resize',resize);resize();
 function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
